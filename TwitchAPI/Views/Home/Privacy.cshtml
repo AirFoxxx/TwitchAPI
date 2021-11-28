@@ -1,10 +1,45 @@
-﻿@model string
+﻿@using TwitchAPI.ViewModels
+@model UserInfos
 
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "User: " + Model.Data.First().DisplayName + " overview";
 }
 <h1>@ViewData["Title"]</h1>
 
-<p>@Model</p>
-
-<p>Use this page to detail your site's privacy policy.</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Data.First().Id)</th>
+            <th>@Html.DisplayNameFor(model => model.Data.First().DisplayName)</th>
+            <th>@Html.DisplayNameFor(model => model.Data.First().Login)</th>
+            <th>@Html.DisplayNameFor(model => model.Data.First().ProfileImageUrl)</th>
+            <th>@Html.DisplayNameFor(model => model.Data.First().ViewCount)</th>
+            <th>@Html.DisplayNameFor(model => model.Data.First().CreatedAt)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Data)
+        {
+            <tr>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.DisplayName)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Login)
+                </td>
+                <td class="align-middle">
+                    <img class="rounded-circle" src="@item.ProfileImageUrl" style="max-width: 150px" />
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.ViewCount)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
