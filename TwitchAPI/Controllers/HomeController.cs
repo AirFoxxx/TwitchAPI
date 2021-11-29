@@ -7,13 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using TwitchAPI.Models;
-
-using System.Net.Http;
-
 using System.Net.Http.Json;
-
-using System.Threading.Tasks;
-
 using TwitchAPI.ViewModels;
 
 namespace TwitchAPI.Controllers
@@ -37,8 +31,8 @@ namespace TwitchAPI.Controllers
         public async Task<IActionResult> Privacy()
         {
             var request = new HttpRequestMessage(HttpMethod.Get,
-            "https://api.twitch.tv/helix/users?login=kenji_CZ");
-            request.Headers.Add("Authorization", "Bearer 3dzpqshuvd6opstwfzmh69i5astiwd");
+            "https://api.twitch.tv/helix/users?login=kenji_CZ&login=hexy&login=sodapoppin");
+            request.Headers.Add("Authorization", "Bearer 2yj97dk1uikb6f2ykkpj608rbx4u18");
             request.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
 
             var client = _clientFactory.CreateClient();
@@ -52,6 +46,35 @@ namespace TwitchAPI.Controllers
             else
             {
                 return View("Privacy");
+            }
+        }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Redirection(string code)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post,
+            "https://id.twitch.tv/oauth2/token");
+            request.Headers.Add("client_id", "1uwdj9owa71a5prb3crveucdval8hp");
+            request.Headers.Add("client_secret", "rvpkm2h35mvtw2s6dmv2eu7wn7gn81");
+            request.Headers.Add("code", code);
+            request.Headers.Add("grant_type", "authorization_code");
+            request.Headers.Add("redirect_uri", "https://localhost:44367/Home/Redirection");
+
+            var client = _clientFactory.CreateClient();
+
+            var response = await client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return View("Index");
+            }
+            else
+            {
+                return View("Index");
             }
         }
 
