@@ -56,13 +56,12 @@ namespace TwitchAPI.Controllers
 
         public async Task<IActionResult> Redirection(string code)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post,
-            "https://id.twitch.tv/oauth2/token");
-            request.Headers.Add("client_id", "1uwdj9owa71a5prb3crveucdval8hp");
-            request.Headers.Add("client_secret", "rvpkm2h35mvtw2s6dmv2eu7wn7gn81");
-            request.Headers.Add("code", code);
-            request.Headers.Add("grant_type", "authorization_code");
-            request.Headers.Add("redirect_uri", "https://localhost:44367/Home/Redirection");
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://id.twitch.tv/oauth2/token"
+                + "?client_id=1uwdj9owa71a5prb3crveucdval8hp"
+                + "&client_secret=rvpkm2h35mvtw2s6dmv2eu7wn7gn81"
+                + "&code=" + code
+                + "&grant_type=authorization_code"
+                + "&redirect_uri=https://localhost:44367/Home/Redirection");
 
             var client = _clientFactory.CreateClient();
 
@@ -70,6 +69,8 @@ namespace TwitchAPI.Controllers
 
             if (response.IsSuccessStatusCode)
             {
+                var userTokenObject = await response.Content.ReadFromJsonAsync<UserToken>();
+                ViewBag.Token = userTokenObject.AccessToken;
                 return View("Index");
             }
             else
