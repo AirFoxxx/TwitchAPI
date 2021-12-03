@@ -2,21 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TwitchAPI.Models;
 
 namespace TwitchAPI.Data
 {
-    internal interface ITwitchRepository
+    public interface ITwitchRepository
     {
         bool SaveChanges();
 
-        //IEnumerable<Command> GetAllCommands();
+        IEnumerable<User> GetAllUsers();
 
-        //Command GetCommandById(int id);
+        User GetUserById(int id);
 
-        //void CreateCommand(Command cmd);
+        void CreateUser(User user);
 
-        //void UpdateCommand(Command cmd);
+        void DeleteUser(User user);
 
-        //void DeleteCommand(Command cmd);
+        public App GetApp();
+
+        void CreateApp(App app);
+
+        void DeleteApp(App app);
     }
 }

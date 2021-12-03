@@ -34,6 +34,8 @@ namespace TwitchAPI
 
             services.AddAutoMapper(typeof(Startup));
 
+            services.AddScoped<ITwitchRepository, TwitchRepository>();
+
             //services.AddHttpClient("someClient", c =>
             //{
             //    c.BaseAddress = new Uri("https://someaddress.com/");

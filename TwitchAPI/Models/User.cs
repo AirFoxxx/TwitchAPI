@@ -56,6 +56,11 @@ namespace TwitchAPI.Models
         [Required]
         public int UserId { get; set; }
 
+        [MaxLength(100)]
+        public string OAuthCode { get; set; }
+
+        public TimeSpan ExpiresIn { get; set; }
+
         [Required]
         [MaxLength(100)]
         public string UserToken { get; set; }

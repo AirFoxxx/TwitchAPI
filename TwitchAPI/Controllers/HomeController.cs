@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TwitchAPI.Models;
 using System.Net.Http.Json;
 using TwitchAPI.ViewModels;
+using TwitchAPI.Data;
 
 namespace TwitchAPI.Controllers
 {
@@ -16,11 +17,15 @@ namespace TwitchAPI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly ITwitchRepository _repository;
+        private readonly App _app;
 
-        public HomeController(ILogger<HomeController> logger, IHttpClientFactory clientFactory)
+        public HomeController(ILogger<HomeController> logger, IHttpClientFactory clientFactory, ITwitchRepository repository)
         {
             _logger = logger;
             _clientFactory = clientFactory;
+            _repository = repository;
+            _app = _repository.GetApp();
         }
 
         public IActionResult Index()
@@ -32,8 +37,8 @@ namespace TwitchAPI.Controllers
         {
             var request = new HttpRequestMessage(HttpMethod.Get,
             "https://api.twitch.tv/helix/users?login=kenji_CZ&login=hexy&login=sodapoppin");
-            request.Headers.Add("Authorization", "Bearer 2yj97dk1uikb6f2ykkpj608rbx4u18");
-            request.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
+            request.Headers.Add("Authorization", "Bearer " + _app.Token);
+            request.Headers.Add("Client-Id", _app.ClientId);
 
             var client = _clientFactory.CreateClient();
 
@@ -58,25 +63,32 @@ namespace TwitchAPI.Controllers
         {
             // Get OAUTH2 token
             var request = new HttpRequestMessage(HttpMethod.Post, "https://id.twitch.tv/oauth2/token"
-                + "?client_id=1uwdj9owa71a5prb3crveucdval8hp"
-                + "&client_secret=rvpkm2h35mvtw2s6dmv2eu7wn7gn81"
+                + "?client_id=" + _app.ClientId
+                + "&client_secret=" + _app.ClientSecret
                 + "&code=" + code
                 + "&grant_type=authorization_code"
-                + "&redirect_uri=" + "https://localhost:44367/Home/Redirection");
+                + "&redirect_uri=" + _app.RedirectURI);
 
             var client = _clientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
 
+            var newUser = new User();
+            newUser.OAuthCode = code;
+
             if (response.IsSuccessStatusCode)
             {
                 var userTokenObject = await response.Content.ReadFromJsonAsync<UserToken>();
 
+                newUser.UserToken = userTokenObject.AccessToken;
+                newUser.RefreshToken = userTokenObject.RefreshToken;
+                newUser.ExpiresIn = TimeSpan.FromSeconds(userTokenObject.ExpiresIn);
+
                 // Get user ID
                 var userIDrequest = new HttpRequestMessage(HttpMethod.Get,
                 "https://api.twitch.tv/helix/users");
-                userIDrequest.Headers.Add("Authorization", "Bearer " + userTokenObject.AccessToken);
-                userIDrequest.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
+                userIDrequest.Headers.Add("Authorization", "Bearer " + newUser.UserToken);
+                userIDrequest.Headers.Add("Client-Id", _app.ClientId);
 
                 var userResponse = await client.SendAsync(userIDrequest);
 
@@ -84,11 +96,13 @@ namespace TwitchAPI.Controllers
                 var user = users.UserInfoList.FirstOrDefault();
                 if (user != null)
                 {
+                    newUser.UserId = user.Id;
+
                     // GET followed streams
                     var userStreamsrequest = new HttpRequestMessage(HttpMethod.Get,
-                    "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + user.Id);
-                    userStreamsrequest.Headers.Add("Authorization", "Bearer " + userTokenObject.AccessToken); // TODO: save to DB
-                    userStreamsrequest.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
+                    "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + newUser.UserId);
+                    userStreamsrequest.Headers.Add("Authorization", "Bearer " + newUser.UserToken); // TODO: save to DB
+                    userStreamsrequest.Headers.Add("Client-Id", _app.ClientId);
 
                     var userStreamsResponse = await client.SendAsync(userStreamsrequest);
 
@@ -97,9 +111,9 @@ namespace TwitchAPI.Controllers
                         // Can be because of supplied scope
                         var revalidateRequest = new HttpRequestMessage(HttpMethod.Post, "https://id.twitch.tv/oauth2/token"
                             + "?grant_type=refresh_token"
-                            + "&refresh_token=" + userTokenObject.RefreshToken // TODO: store in DB
-                            + "&client_id=1uwdj9owa71a5prb3crveucdval8hp"
-                            + "&client_secret=rvpkm2h35mvtw2s6dmv2eu7wn7gn81");
+                            + "&refresh_token=" + newUser.RefreshToken // TODO: store in DB
+                            + "&client_id=" + _app.ClientId
+                            + "&client_secret=" + _app.ClientSecret);
 
                         var revalidationResponse = await client.SendAsync(revalidateRequest);
 
@@ -107,16 +121,26 @@ namespace TwitchAPI.Controllers
                         {
                             var validationToken = await revalidationResponse.Content.ReadFromJsonAsync<RevalidatedUserToken>();
 
+                            newUser.UserToken = validationToken.AccessToken;
+
                             // GET followed streams attempt 2
                             userStreamsrequest = new HttpRequestMessage(HttpMethod.Get,
-                            "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + user.Id);
-                            userStreamsrequest.Headers.Add("Authorization", "Bearer " + validationToken.AccessToken); // TODO: save to DB
-                            userStreamsrequest.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
+                            "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + newUser.UserId);
+                            userStreamsrequest.Headers.Add("Authorization", "Bearer " + newUser.UserToken); // TODO: save to DB
+                            userStreamsrequest.Headers.Add("Client-Id", _app.ClientId);
 
                             userStreamsResponse = await client.SendAsync(userStreamsrequest);
                             // GOTO: 120
                         }
                     }
+
+                    var scopes = new List<Scope>();
+                    scopes.Add(Scope.user_edit);
+                    scopes.Add(Scope.user_read_blocked_users);
+
+                    newUser.Scopes = scopes;
+                    _repository.CreateUser(newUser);
+                    _repository.SaveChanges();
 
                     var followedStreams = await userStreamsResponse.Content.ReadFromJsonAsync<FollowedStreams>();
                     // Request succeeded

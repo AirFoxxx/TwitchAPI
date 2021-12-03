@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TwitchAPI.Data;
 
 namespace TwitchAPI.Migrations
 {
     [DbContext(typeof(TwitchContext))]
-    partial class TwitchContextModelSnapshot : ModelSnapshot
+    [Migration("20211203191856_OAuth_added")]
+    partial class OAuth_added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +37,7 @@ namespace TwitchAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<TimeSpan?>("ExpiresIn")
+                    b.Property<TimeSpan>("ExpiresIn")
                         .HasColumnType("time");
 
                     b.Property<string>("RedirectURI")
@@ -62,9 +64,6 @@ namespace TwitchAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<TimeSpan?>("ExpiresIn")
-                        .HasColumnType("time");
 
                     b.Property<string>("OAuthCode")
                         .HasMaxLength(100)

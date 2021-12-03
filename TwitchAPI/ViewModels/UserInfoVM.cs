@@ -15,7 +15,7 @@ namespace TwitchAPI.ViewModels
     public partial class UserInfo
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [JsonPropertyName("login")]
         public string Login { get; set; }

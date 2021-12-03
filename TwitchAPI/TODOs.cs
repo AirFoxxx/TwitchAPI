@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace TwitchAPI
 {
-    // TODO: Create database access and save objects App:{App Token, Refresh token, Client secret, Client id}
-    // User {UserID, User access token, refresh token, Fkey-SCOPES, ... }
-    // Scopes {Enum of scopes}
+    // TODO: Edit the ExpiresIn parameter to not be timespan but fixed future timepoint?
+    // Or better - add parameter to keep track of time it was last refreshed.
 
     // TODO: Abstract away the Client Factory, send it to the New abstraction nd make it Revalidate users and the app?
 
