@@ -39,7 +39,7 @@
                     @Html.DisplayFor(modelItem => item.StartedAt)
                 </td>
                 <td class="align-middle">
-                    <img class="rounded-circle" src="@item.ThumbnailUrl" style="max-width: 150px" />
+                    <img class="rounded-circle" src="@item.ThumbnailUrl.Replace("{width}", "1920").Replace("{height}", "1080")" style="max-width: 150px" />
                 </td>
                 <td class="align-middle">
                     @Html.DisplayFor(modelItem => item.Title)
