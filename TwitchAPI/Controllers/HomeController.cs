@@ -56,12 +56,13 @@ namespace TwitchAPI.Controllers
 
         public async Task<IActionResult> Redirection(string code)
         {
+            // Get OAUTH2 token
             var request = new HttpRequestMessage(HttpMethod.Post, "https://id.twitch.tv/oauth2/token"
                 + "?client_id=1uwdj9owa71a5prb3crveucdval8hp"
                 + "&client_secret=rvpkm2h35mvtw2s6dmv2eu7wn7gn81"
                 + "&code=" + code
                 + "&grant_type=authorization_code"
-                + "&redirect_uri=https://localhost:44367/Home/Redirection");
+                + "&redirect_uri=" + "https://localhost:44367/Home/Redirection");
 
             var client = _clientFactory.CreateClient();
 
@@ -86,11 +87,38 @@ namespace TwitchAPI.Controllers
                     // GET followed streams
                     var userStreamsrequest = new HttpRequestMessage(HttpMethod.Get,
                     "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + user.Id);
-                    userStreamsrequest.Headers.Add("Authorization", "Bearer " + userTokenObject.AccessToken);
+                    userStreamsrequest.Headers.Add("Authorization", "Bearer " + userTokenObject.AccessToken); // TODO: save to DB
                     userStreamsrequest.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
 
                     var userStreamsResponse = await client.SendAsync(userStreamsrequest);
-                    var followedStreams = await userResponse.Content.ReadFromJsonAsync<FollowedStreams>();
+
+                    if (userStreamsResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        // Can be because of supplied scope
+                        var revalidateRequest = new HttpRequestMessage(HttpMethod.Post, "https://id.twitch.tv/oauth2/token"
+                            + "?grant_type=refresh_token"
+                            + "&refresh_token=" + userTokenObject.RefreshToken // TODO: store in DB
+                            + "&client_id=1uwdj9owa71a5prb3crveucdval8hp"
+                            + "&client_secret=rvpkm2h35mvtw2s6dmv2eu7wn7gn81");
+
+                        var revalidationResponse = await client.SendAsync(revalidateRequest);
+
+                        if (revalidationResponse.IsSuccessStatusCode)
+                        {
+                            var validationToken = await revalidationResponse.Content.ReadFromJsonAsync<RevalidatedUserToken>();
+
+                            // GET followed streams attempt 2
+                            userStreamsrequest = new HttpRequestMessage(HttpMethod.Get,
+                            "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + user.Id);
+                            userStreamsrequest.Headers.Add("Authorization", "Bearer " + validationToken.AccessToken); // TODO: save to DB
+                            userStreamsrequest.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
+
+                            userStreamsResponse = await client.SendAsync(userStreamsrequest);
+                            // GOTO: 120
+                        }
+                    }
+
+                    var followedStreams = await userStreamsResponse.Content.ReadFromJsonAsync<FollowedStreams>();
                     // Request succeeded
                     if (followedStreams != null)
                     {
