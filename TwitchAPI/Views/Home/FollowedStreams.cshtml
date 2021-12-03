@@ -1,0 +1,56 @@
+﻿@using TwitchAPI.ViewModels
+@model FollowedStreams
+
+@{
+    ViewData["Title"] = "User: " + ViewBag.UserName + " followed streams overview";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().Id)</th>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().GameId)</th>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().GameName)</th>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().Language)</th>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().StartedAt)</th>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().ThumbnailUrl)</th>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().Title)</th>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().ViewerCount)</th>
+            <th>@Html.DisplayNameFor(model => model.FollowedStreamsList.First().UserName)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.FollowedStreamsList)
+        {
+            <tr>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.GameId)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.GameName)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Language)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.StartedAt)
+                </td>
+                <td class="align-middle">
+                    <img class="rounded-circle" src="@item.ThumbnailUrl" style="max-width: 150px" />
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.ViewerCount)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

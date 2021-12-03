@@ -70,7 +70,39 @@ namespace TwitchAPI.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var userTokenObject = await response.Content.ReadFromJsonAsync<UserToken>();
-                ViewBag.Token = userTokenObject.AccessToken;
+
+                // Get user ID
+                var userIDrequest = new HttpRequestMessage(HttpMethod.Get,
+                "https://api.twitch.tv/helix/users");
+                userIDrequest.Headers.Add("Authorization", "Bearer " + userTokenObject.AccessToken);
+                userIDrequest.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
+
+                var userResponse = await client.SendAsync(userIDrequest);
+
+                var users = await userResponse.Content.ReadFromJsonAsync<UserInfos>();
+                var user = users.UserInfoList.FirstOrDefault();
+                if (user != null)
+                {
+                    // GET followed streams
+                    var userStreamsrequest = new HttpRequestMessage(HttpMethod.Get,
+                    "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + user.Id);
+                    userStreamsrequest.Headers.Add("Authorization", "Bearer " + userTokenObject.AccessToken);
+                    userStreamsrequest.Headers.Add("Client-Id", "1uwdj9owa71a5prb3crveucdval8hp");
+
+                    var userStreamsResponse = await client.SendAsync(userStreamsrequest);
+                    var followedStreams = await userResponse.Content.ReadFromJsonAsync<FollowedStreams>();
+                    // Request succeeded
+                    if (followedStreams != null)
+                    {
+                        ViewBag.UserName = user.DisplayName;
+                        return View("FollowedStreams", followedStreams);
+                    }
+                    else
+                    {
+                        return View("Index");
+                    }
+                }
+
                 return View("Index");
             }
             else

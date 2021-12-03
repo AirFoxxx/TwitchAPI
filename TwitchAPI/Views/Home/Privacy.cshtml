@@ -2,23 +2,23 @@
 @model UserInfos
 
 @{
-    ViewData["Title"] = "User: " + Model.Data.First().DisplayName + " overview";
+    ViewData["Title"] = "User: " + Model.UserInfoList.First().DisplayName + " overview";
 }
 <h1>@ViewData["Title"]</h1>
 
 <table class="table">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.Data.First().Id)</th>
-            <th>@Html.DisplayNameFor(model => model.Data.First().DisplayName)</th>
-            <th>@Html.DisplayNameFor(model => model.Data.First().Login)</th>
-            <th>@Html.DisplayNameFor(model => model.Data.First().ProfileImageUrl)</th>
-            <th>@Html.DisplayNameFor(model => model.Data.First().ViewCount)</th>
-            <th>@Html.DisplayNameFor(model => model.Data.First().CreatedAt)</th>
+            <th>@Html.DisplayNameFor(model => model.UserInfoList.First().Id)</th>
+            <th>@Html.DisplayNameFor(model => model.UserInfoList.First().DisplayName)</th>
+            <th>@Html.DisplayNameFor(model => model.UserInfoList.First().Login)</th>
+            <th>@Html.DisplayNameFor(model => model.UserInfoList.First().ProfileImageUrl)</th>
+            <th>@Html.DisplayNameFor(model => model.UserInfoList.First().ViewCount)</th>
+            <th>@Html.DisplayNameFor(model => model.UserInfoList.First().CreatedAt)</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Data)
+        @foreach (var item in Model.UserInfoList)
         {
             <tr>
                 <td class="align-middle">
