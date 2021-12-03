@@ -18,7 +18,7 @@ namespace TwitchAPI.ViewModels
         public long ExpiresIn { get; set; }
 
         [JsonPropertyName("scope")]
-        public string[] Scope { get; set; }
+        public List<string> Scope { get; set; }
 
         [JsonPropertyName("token_type")]
         public string TokenType { get; set; }

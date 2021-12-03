@@ -9,7 +9,7 @@ namespace TwitchAPI.ViewModels
     public partial class UserInfos
     {
         [JsonPropertyName("data")]
-        public UserInfo[] Data { get; set; }
+        public List<UserInfo> Data { get; set; }
     }
 
     public partial class UserInfo
