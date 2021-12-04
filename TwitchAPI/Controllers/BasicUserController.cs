@@ -13,14 +13,14 @@ using TwitchAPI.Data;
 
 namespace TwitchAPI.Controllers
 {
-    public class HomeController : Controller
+    public class BasicUserController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IHttpClientFactory _clientFactory;
         private readonly ITwitchRepository _repository;
         private readonly App _app;
 
-        public HomeController(ILogger<HomeController> logger, IHttpClientFactory clientFactory, ITwitchRepository repository)
+        public BasicUserController(ILogger<HomeController> logger, IHttpClientFactory clientFactory, ITwitchRepository repository)
         {
             _logger = logger;
             _clientFactory = clientFactory;
@@ -28,22 +28,28 @@ namespace TwitchAPI.Controllers
             _app = _repository.GetApp();
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> CustomUsersInfo()
         {
-            return View();
+            var request = new HttpRequestMessage(HttpMethod.Get,
+            "https://api.twitch.tv/helix/users?login=kenji_CZ&login=hexy&login=sodapoppin");
+            request.Headers.Add("Authorization", "Bearer " + _app.Token);
+            request.Headers.Add("Client-Id", _app.ClientId);
+
+            var client = _clientFactory.CreateClient();
+
+            var response = await client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return View(await response.Content.ReadFromJsonAsync<UserInfos>());
+            }
+            else
+            {
+                return View();
+            }
         }
 
-        public IActionResult Registration(string input)
-        {
-            return View();
-        }
-
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        public async Task<IActionResult> Redirection(string code)
+        public async Task<IActionResult> FollowedStreams(string code)
         {
             // Get OAUTH2 token
             var request = new HttpRequestMessage(HttpMethod.Post, "https://id.twitch.tv/oauth2/token"
@@ -131,19 +137,19 @@ namespace TwitchAPI.Controllers
                     if (followedStreams != null)
                     {
                         ViewBag.UserName = user.DisplayName;
-                        return View("FollowedStreams", followedStreams);
+                        return View(followedStreams);
                     }
                     else
                     {
-                        return View("Index");
+                        return Error();
                     }
                 }
 
-                return View("Index");
+                return Error();
             }
             else
             {
-                return View("Index");
+                return Error();
             }
         }
 
