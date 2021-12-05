@@ -2594,24 +2594,24 @@ fieldset:disabled a.btn {
 .btn-custom {
     color: #fff;
     background-color: #7125ac;
-    border-color: #007bff;
+    border-color: #212529;
 }
 
     .btn-custom:hover {
         color: #fff;
         background-color: #8951b5;
-        border-color: #0062cc;
+        border-color: #343a40;
     }
 
 .btn-primary {
     color: #fff;
-    background-color: #7125ac;
+    background-color: #007bff;
     border-color: #007bff;
 }
 
     .btn-primary:hover {
         color: #fff;
-        background-color: #7125ac;
+        background-color: #0062cc;
         border-color: #0062cc;
     }
 

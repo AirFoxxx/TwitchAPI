@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TwitchAPI</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
@@ -31,7 +31,7 @@
                     @if (ViewData["Title"].ToString() != "Privilege setup")
                     {
                         <form class="form-inline my-2 my-lg-0" asp-controller="Home" asp-action="Login" style="padding-right: 25px;">
-                            <button class="btn btn-primary my-2 my-sm-0" type="submit"><i class="bi bi-search"></i>Log in via Twitch</button>
+                            <button class="btn btn-custom my-2 my-sm-0" type="submit"><i class="bi bi-search"></i>Log in via Twitch</button>
                         </form>
                     }
                 </div>
