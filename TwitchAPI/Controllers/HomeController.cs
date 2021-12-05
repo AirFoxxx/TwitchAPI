@@ -42,7 +42,8 @@ namespace TwitchAPI.Controllers
             }
 
             // Build the link here
-            return View();
+
+            return new RedirectResult("http://www.website.com");
         }
 
         public IActionResult Login()

@@ -7,31 +7,39 @@
 <div class="text-center">
 
     <div class="row">
-        <div class="col-md-8 offset-2">
+        <div class="col-md-8 offset-2 text-md-left">
             <p>
                 <h4>Please select all scope parameters to give this app access to:</h4>
             </p>
 
-            <form asp-action="Registration" asp-controller="Home">
-                <div asp-validation-summary="All" class="text-danger"></div>
+            <label class="text-danger text-md-center align-content-center">@Html.ValidationSummary()</label>
 
-                @for (int i = 0; i < Model.ScopeList.Count; i++)
+            @using (Html.BeginForm("Registration", "Home", FormMethod.Post))
+            {
+                for (int i = 0; i < Model.ScopeList.Count; i++)
                 {
-                    <div class="container">
-                        <div class="form-group">
-                            <label class="form-check-label" for="@Model.ScopeList[i].Scope">
-                                @Html.DisplayFor(m => m.ScopeList[i].Scope)
-                            </label>
-                            <span asp-validation-for="@Model.ScopeList[i].Scope" class="text-danger"></span>
-                            <input asp-for="@Model.ScopeList[i].IsSelected" class="form-control" />
-                        </div>
-                    </div>
+                    @Html.CheckBoxFor(m => m.ScopeList[i].IsSelected);
+                    <span>  </span>
+                    @Html.DisplayFor(m => m.ScopeList[i].Scope);
+                    @Html.HiddenFor(m => m.ScopeList[i].Scope);
+                    <br>
                 }
-
-                <div class="form-group">
-                    <input type="submit" value="Submit to Twitch" class="btn btn-custom float-md-none" />
+                <br>
+                <div class="form-group text-md-center">
+                    <input type="submit" value="Submit to Twitch" class="btn btn-custom float-md-none text-md-center" />
                 </div>
-            </form>
+            }
+            <br>
+            <div class="row text-md-center">
+                <div class="card text-md-center align-content-center" style="width: 18rem;">
+                    <img src="https://discuss.dev.twitch.tv/uploads/default/original/2X/c/c3e989328e77a8c52f5c645171f01ee95615fd21.png" class="card-img-top" alt="Twitch Developer Forums">
+                    <div class="card-body">
+                        <h5 class="card-title">Twitch Docs</h5>
+                        <p class="card-text">A quick overview of scopes that are available to user accounts.</p>
+                        <a href="https://dev.twitch.tv/docs/authentication#scopes" class="btn btn-primary stretched-link">Visit</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
