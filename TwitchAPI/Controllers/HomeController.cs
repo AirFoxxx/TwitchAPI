@@ -33,14 +33,29 @@ namespace TwitchAPI.Controllers
             return View();
         }
 
-        public IActionResult Registration(string input)
+        public IActionResult Registration(UserScopes model)
         {
+            if (!model.ScopeList.Where(p => p.IsSelected).Any())
+            {
+                ModelState.AddModelError("ScopeList", "Please select at least one!!!");
+                return View("Login", model);
+            }
+
+            // Build the link here
             return View();
         }
 
         public IActionResult Login()
         {
-            return View();
+            UserScopes model = new UserScopes();
+            model.ScopeList = new List<UserScope>();
+
+            foreach (var item in Enum.GetValues(typeof(Scope)))
+            {
+                model.ScopeList.Add(new UserScope() { Scope = (Scope)Enum.Parse(enumType: typeof(Scope), Enum.GetName(typeof(Scope), item)), IsSelected = false });
+            }
+
+            return View(model);
         }
 
         public async Task<IActionResult> Redirection(string code)
