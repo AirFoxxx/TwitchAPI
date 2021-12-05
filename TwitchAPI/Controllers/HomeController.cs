@@ -42,8 +42,20 @@ namespace TwitchAPI.Controllers
             }
 
             // Build the link here
+            var separator = "%20";
+            var scopeString = string.Empty;
+            foreach (var item in model.ScopeList.FindAll(m => m.IsSelected == true))
+            {
+                scopeString += Enum.GetName(typeof(Scope), item.Scope).Replace('_', ':') + separator;
+            }
+            var redirectUrl = "https://id.twitch.tv/oauth2/authorize"
+                + "?response_type=code" +
+                "&client_id=" + _app.ClientId +
+                "&redirect_uri=" + _app.RedirectURI +
+                "&scope=" + scopeString.Remove(scopeString.Length - 3, 3) +
+                "&state= " + _app.Token;
 
-            return new RedirectResult("http://www.website.com");
+            return new RedirectResult(redirectUrl);
         }
 
         public IActionResult Login()
