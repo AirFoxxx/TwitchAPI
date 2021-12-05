@@ -8,8 +8,12 @@ namespace TwitchAPI.Models
 {
     public enum Scope
     {
+        [Display(Name = "Extensions")]
         analytics_read_extensions,
+
+        [Display(Name = "Games")]
         analytics_read_games,
+
         bits_read,
         channel_edit_commercial,
         channel_manage_broadcast,
