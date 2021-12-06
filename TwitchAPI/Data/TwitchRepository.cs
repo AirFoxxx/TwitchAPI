@@ -57,7 +57,12 @@ namespace TwitchAPI.Data
             return _context.Apps.FirstOrDefault();
         }
 
-        public User GetUserById(int id)
+        public User GetUserByUserId(int id)
+        {
+            return _context.Users.FirstOrDefault(user => user.UserId == id);
+        }
+
+        public User GetUserByDBId(int id)
         {
             return _context.Users.FirstOrDefault(user => user.Id == id);
         }

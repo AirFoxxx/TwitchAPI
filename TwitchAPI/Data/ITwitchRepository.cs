@@ -12,7 +12,9 @@ namespace TwitchAPI.Data
 
         IEnumerable<User> GetAllUsers();
 
-        User GetUserById(int id);
+        User GetUserByUserId(int id);
+
+        User GetUserByDBId(int id);
 
         void CreateUser(User user);
 

@@ -65,7 +65,8 @@ namespace TwitchAPI.Controllers
 
             foreach (var item in Enum.GetValues(typeof(Scope)))
             {
-                model.ScopeList.Add(new UserScope() { Scope = (Scope)Enum.Parse(enumType: typeof(Scope), Enum.GetName(typeof(Scope), item)), IsSelected = false });
+                model.ScopeList.Add(new UserScope()
+                { Scope = (Scope)Enum.Parse(enumType: typeof(Scope), Enum.GetName(typeof(Scope), item)), IsSelected = false });
             }
 
             return View(model);
@@ -73,7 +74,7 @@ namespace TwitchAPI.Controllers
 
         public async Task<IActionResult> Redirection(string code)
         {
-            // Get OAUTH2 token
+            // Get OAUTH2 token for user
             var request = new HttpRequestMessage(HttpMethod.Post, "https://id.twitch.tv/oauth2/token"
                 + "?client_id=" + _app.ClientId
                 + "&client_secret=" + _app.ClientSecret
@@ -110,69 +111,36 @@ namespace TwitchAPI.Controllers
                 {
                     newUser.UserId = user.Id;
 
-                    // GET followed streams
-                    var userStreamsrequest = new HttpRequestMessage(HttpMethod.Get,
-                    "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + newUser.UserId);
-                    userStreamsrequest.Headers.Add("Authorization", "Bearer " + newUser.UserToken); // TODO: save to DB
-                    userStreamsrequest.Headers.Add("Client-Id", _app.ClientId);
-
-                    var userStreamsResponse = await client.SendAsync(userStreamsrequest);
-
-                    if (userStreamsResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    // User is already in the database
+                    var dbUser = _repository.GetUserByUserId(newUser.UserId);
+                    if (dbUser != null)
                     {
-                        // Can be because of supplied scope
-                        var revalidateRequest = new HttpRequestMessage(HttpMethod.Post, "https://id.twitch.tv/oauth2/token"
-                            + "?grant_type=refresh_token"
-                            + "&refresh_token=" + newUser.RefreshToken // TODO: store in DB
-                            + "&client_id=" + _app.ClientId
-                            + "&client_secret=" + _app.ClientSecret);
-
-                        var revalidationResponse = await client.SendAsync(revalidateRequest);
-
-                        if (revalidationResponse.IsSuccessStatusCode)
-                        {
-                            var validationToken = await revalidationResponse.Content.ReadFromJsonAsync<RevalidatedUserToken>();
-
-                            newUser.UserToken = validationToken.AccessToken;
-
-                            // GET followed streams attempt 2
-                            userStreamsrequest = new HttpRequestMessage(HttpMethod.Get,
-                            "https://api.twitch.tv/helix/streams/followed" + "?user_id=" + newUser.UserId);
-                            userStreamsrequest.Headers.Add("Authorization", "Bearer " + newUser.UserToken); // TODO: save to DB
-                            userStreamsrequest.Headers.Add("Client-Id", _app.ClientId);
-
-                            userStreamsResponse = await client.SendAsync(userStreamsrequest);
-                            // GOTO: 120
-                        }
-                    }
-
-                    var scopes = new List<Scope>();
-                    scopes.Add(Scope.user_edit);
-                    scopes.Add(Scope.user_read_blocked_users);
-
-                    newUser.Scopes = scopes;
-                    _repository.CreateUser(newUser);
-                    _repository.SaveChanges();
-
-                    var followedStreams = await userStreamsResponse.Content.ReadFromJsonAsync<FollowedStreams>();
-                    // Request succeeded
-                    if (followedStreams != null)
-                    {
-                        ViewBag.UserName = user.DisplayName;
-                        return View("FollowedStreams", followedStreams);
+                        dbUser = newUser;
+                        dbUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', '_')));
+                        _repository.SaveChanges();
                     }
                     else
                     {
-                        return View("Index");
+                        // dbUser is NULL
+                        newUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', '_')));
+                        _repository.CreateUser(newUser);
+                        _repository.SaveChanges();
                     }
                 }
-
-                return View("Index");
+                else
+                {
+                    // Getting a user ID for this user failed!
+                    return View("Failure",
+                        "User ID retrieval for this user failed! Try to change available scopes.");
+                }
             }
             else
             {
-                return View("Index");
+                // OAUTH2 validation failed!
+                return View("Failure", "OAUTH2 token retrieval for this user failed! Try to validate this app again.");
             }
+
+            return View("Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
