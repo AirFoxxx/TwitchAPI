@@ -118,13 +118,13 @@ namespace TwitchAPI.Controllers
                         dbUser.OAuthCode = newUser.OAuthCode;
                         dbUser.UserToken = newUser.UserToken;
                         dbUser.UserId = newUser.UserId;
-                        //dbUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', ' ')));
+                        dbUser.Scopes = userTokenObject.Scope.ToArray();
                         _repository.SaveChanges();
                     }
                     else
                     {
                         // dbUser is NULL
-                        //newUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', ' ')));
+                        newUser.Scopes = userTokenObject.Scope.ToArray();
                         _repository.CreateUser(newUser);
                         _repository.SaveChanges();
                     }
