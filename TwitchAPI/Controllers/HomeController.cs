@@ -39,65 +39,41 @@ namespace TwitchAPI.Controllers
             try
             {
                 var container = new ScopeContainer();
-                //TryUpdateModel(gate); call to DB
 
-                if (ModelState.IsValid)
+                container.ScopesFormatted = Request.Form["CategoryIds"];
+
+                if (string.IsNullOrEmpty(container.ScopesFormatted))
                 {
-                    container.ScopesFormatted = Request.Form["CategoryIds"];// here you'll get a string containing a list of checked values of the checkbox list separated by commas
-
-                    if (string.IsNullOrEmpty(container.ScopesFormatted))//this is used when no checkbox is checked
-                    {
-                        // Return invalid view back
-                        ModelState.AddModelError("ScopeList", "Please select at least one!!!");
-                        return View("Login", container);
-                    }
-
-                    //Save();//Save to database
-                    return RedirectToAction("Index");
+                    // Return invalid view back
+                    ModelState.AddModelError("ScopeList", "Please select at least one!!!");
+                    return View("Login", container);
                 }
-                else
-                {
-                    return View();
-                }
+
+                //// Build the link here
+                //var separator = "%20";
+                //var scopeString = string.Empty;
+                //foreach (var item in model.ScopeList)
+                //{
+                //    //scopeString += Enum.GetName(typeof(Scope), item.Scope).Replace(' ', ':') + separator;
+                //}
+                //var redirectUrl = "https://id.twitch.tv/oauth2/authorize"
+                //    + "?response_type=code" +
+                //    "&client_id=" + _app.ClientId +
+                //    "&redirect_uri=" + _app.RedirectURI +
+                //    "&scope=" + scopeString.Remove(scopeString.Length - 3, 3) +
+                //    "&state= " + _app.Token;
+
+                //return new RedirectResult(redirectUrl);
+                return RedirectToAction("Index");
             }
             catch
             {
-                return View();
+                return View("Failure", "Something did not go quite right with the form submition. Wanna try it again?");
             }
-
-            //if (model.ScopeList.Count() == 0)
-            //{
-            //    ModelState.AddModelError("ScopeList", "Please select at least one!!!");
-            //    return View("Login", model);
-            //}
-
-            //// Build the link here
-            //var separator = "%20";
-            //var scopeString = string.Empty;
-            //foreach (var item in model.ScopeList)
-            //{
-            //    //scopeString += Enum.GetName(typeof(Scope), item.Scope).Replace(' ', ':') + separator;
-            //}
-            //var redirectUrl = "https://id.twitch.tv/oauth2/authorize"
-            //    + "?response_type=code" +
-            //    "&client_id=" + _app.ClientId +
-            //    "&redirect_uri=" + _app.RedirectURI +
-            //    "&scope=" + scopeString.Remove(scopeString.Length - 3, 3) +
-            //    "&state= " + _app.Token;
-
-            //return new RedirectResult(redirectUrl);
         }
 
         public IActionResult Login()
         {
-            //List<CheckBox> lstchk = new List<CheckBox>()
-            //{
-            //    new CheckBox {Text="safety", Value="safetyValue", Category = ScopeCategory.analytics },
-            //    new CheckBox {Text="power", Value="powerValue", Category = ScopeCategory.bits},
-            //    new CheckBox {Text="access", Value="accessValue", Category = ScopeCategory.bits },
-            //    new CheckBox {Text="test", Value="testValue" , Category = ScopeCategory.channel},
-            //};
-
             var model = new ScopeContainer();
             return View(model);
         }
