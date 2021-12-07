@@ -49,22 +49,15 @@ namespace TwitchAPI.Controllers
                     return View("Login", container);
                 }
 
-                //// Build the link here
-                //var separator = "%20";
-                //var scopeString = string.Empty;
-                //foreach (var item in model.ScopeList)
-                //{
-                //    //scopeString += Enum.GetName(typeof(Scope), item.Scope).Replace(' ', ':') + separator;
-                //}
-                //var redirectUrl = "https://id.twitch.tv/oauth2/authorize"
-                //    + "?response_type=code" +
-                //    "&client_id=" + _app.ClientId +
-                //    "&redirect_uri=" + _app.RedirectURI +
-                //    "&scope=" + scopeString.Remove(scopeString.Length - 3, 3) +
-                //    "&state= " + _app.Token;
+                // Build the link here
+                var redirectUrl = "https://id.twitch.tv/oauth2/authorize"
+                    + "?response_type=code" +
+                    "&client_id=" + _app.ClientId +
+                    "&redirect_uri=" + _app.RedirectURI +
+                    "&scope=" + container.ScopesFormatted.Replace(",", "%20") +
+                    "&state= " + _app.Token;
 
-                //return new RedirectResult(redirectUrl);
-                return RedirectToAction("Index");
+                return new RedirectResult(redirectUrl);
             }
             catch
             {
@@ -125,13 +118,13 @@ namespace TwitchAPI.Controllers
                         dbUser.OAuthCode = newUser.OAuthCode;
                         dbUser.UserToken = newUser.UserToken;
                         dbUser.UserId = newUser.UserId;
-                        dbUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', ' ')));
+                        //dbUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', ' ')));
                         _repository.SaveChanges();
                     }
                     else
                     {
                         // dbUser is NULL
-                        newUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', ' ')));
+                        //newUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', ' ')));
                         _repository.CreateUser(newUser);
                         _repository.SaveChanges();
                     }

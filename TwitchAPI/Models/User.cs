@@ -142,6 +142,6 @@ namespace TwitchAPI.Models
         public string RefreshToken { get; set; }
 
         [Required]
-        public ICollection<Scope> Scopes { get; set; }
+        public string[] Scopes { get; set; }
     }
 }

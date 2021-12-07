@@ -128,7 +128,7 @@ namespace TwitchAPI.Controllers
                     scopes.Add(Scope.user_edit);
                     scopes.Add(Scope.user_read_blocked_users);
 
-                    newUser.Scopes = scopes;
+                    //newUser.Scopes = scopes;
                     _repository.CreateUser(newUser);
                     _repository.SaveChanges();
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using TwitchAPI.Models;
 
 namespace TwitchAPI.Data
@@ -17,14 +18,11 @@ namespace TwitchAPI.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            var converter = new EnumCollectionJsonValueConverter<Scope>();
-            var comparer = new CollectionValueComparer<Scope>();
-
-            modelBuilder
-              .Entity<User>()
-              .Property(e => e.Scopes)
-              .HasConversion(converter)
-              .Metadata.SetValueComparer(comparer);
+            modelBuilder.Entity<User>()
+                        .Property(e => e.Scopes)
+                        .HasConversion(
+                            v => string.Join(',', v),
+                            v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
         }
     }
 }
