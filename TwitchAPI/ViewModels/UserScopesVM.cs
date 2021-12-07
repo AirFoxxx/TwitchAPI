@@ -64,6 +64,7 @@ namespace TwitchAPI.ViewModels
 
     public class CheckBox
     {
+        public bool PreviouslySelected = false;
         public string Value { get; set; }
         public Scope Text { get; set; }
         public ScopeCategory Category { get; set; }

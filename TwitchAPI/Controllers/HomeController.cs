@@ -68,6 +68,9 @@ namespace TwitchAPI.Controllers
         public IActionResult Login()
         {
             var model = new ScopeContainer();
+            // Test for DB loaded values when we implement Accounts
+            model.CheckBoxes[0].PreviouslySelected = true;
+            model.CheckBoxes[15].PreviouslySelected = true;
             return View(model);
         }
 

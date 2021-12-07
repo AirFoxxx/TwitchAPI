@@ -36,7 +36,14 @@
                         <br />
                     }
                     <span class="d-inline">
-                        <input class="d-inline" type="checkbox" id="@Html.DisplayFor(obj => item.Text)" name="CategoryIds" value="@item.Value" />
+                        @if (item.PreviouslySelected)
+                        {
+                            <input class="d-inline" type="checkbox" id="@Html.DisplayFor(obj => item.Text)" name="CategoryIds" value="@item.Value" checked="" />
+                        }
+                        else
+                        {
+                            <input class="d-inline" type="checkbox" id="@Html.DisplayFor(obj => item.Text)" name="CategoryIds" value="@item.Value" />
+                        }
                         <label class="d-inline" for="optionText">@Html.DisplayFor(obj => item.Text)</label>
                     </span>
                     <br />
