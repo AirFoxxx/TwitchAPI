@@ -1,5 +1,5 @@
 ﻿@using TwitchAPI.ViewModels
-@model UserScopes
+@model ScopeContainer
 @{
     ViewData["Title"] = "Privilege setup";
 }
@@ -16,20 +16,38 @@
 
             @using (Html.BeginForm("Registration", "Home", FormMethod.Post))
             {
-                for (int i = 0; i < Model.ScopeList.Count; i++)
+                ScopeCategory category = ScopeCategory.analytics;
+
+                <div class="badge badge-primary text-wrap text-md-center align-content-center" style="width: 6rem;">
+                    @Enum.GetName(typeof(ScopeCategory), category)
+                </div>
+                <br />
+
+                @foreach (var item in Model.CheckBoxes)
                 {
-                    @Html.CheckBoxFor(m => m.ScopeList[i].IsSelected);
-                    <span>  </span>
-                    @Html.DisplayFor(m => m.ScopeList[i].Scope);
-                    @Html.HiddenFor(m => m.ScopeList[i].Scope);
-                    <br>
+                    if (category != item.Category)
+                    {
+                        category = item.Category;
+
+                        <br />
+                        <div class="badge badge-primary text-wrap text-md-center align-content-center" style="width: 6rem;">
+                            @Enum.GetName(typeof(ScopeCategory), category)
+                        </div>
+                        <br />
+                    }
+                    <span class="d-inline">
+                        <input class="d-inline" type="checkbox" id="@Html.DisplayFor(obj => item.Text)" name="CategoryIds" value="@item.Value" />
+                        <label class="d-inline" for="optionText">@Html.DisplayFor(obj => item.Text)</label>
+                    </span>
+                    <br />
                 }
-                <br>
+                <br />
+                <br />
                 <div class="form-group text-md-center">
                     <input type="submit" value="Submit to Twitch" class="btn btn-custom float-md-none text-md-center" />
                 </div>
             }
-            <br>
+            <br />
             <div class="row text-md-center">
                 <div class="card text-md-center align-content-center" style="width: 18rem;">
                     <img src="https://discuss.dev.twitch.tv/uploads/default/original/2X/c/c3e989328e77a8c52f5c645171f01ee95615fd21.png" class="card-img-top" alt="Twitch Developer Forums">

@@ -10,6 +10,7 @@ using TwitchAPI.Models;
 using System.Net.Http.Json;
 using TwitchAPI.ViewModels;
 using TwitchAPI.Data;
+using Microsoft.AspNetCore.Http;
 
 namespace TwitchAPI.Controllers
 {
@@ -33,42 +34,71 @@ namespace TwitchAPI.Controllers
             return View();
         }
 
-        public IActionResult Registration(UserScopes model)
+        public IActionResult Registration(IFormCollection collection)
         {
-            if (!model.ScopeList.Where(p => p.IsSelected).Any())
+            try
             {
-                ModelState.AddModelError("ScopeList", "Please select at least one!!!");
-                return View("Login", model);
+                var container = new ScopeContainer();
+                //TryUpdateModel(gate); call to DB
+
+                if (ModelState.IsValid)
+                {
+                    container.ScopesFormatted = Request.Form["CategoryIds"];// here you'll get a string containing a list of checked values of the checkbox list separated by commas
+
+                    if (string.IsNullOrEmpty(container.ScopesFormatted))//this is used when no checkbox is checked
+                    {
+                        // Return invalid view back
+                        ModelState.AddModelError("ScopeList", "Please select at least one!!!");
+                        return View("Login", container);
+                    }
+
+                    //Save();//Save to database
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return View();
+                }
+            }
+            catch
+            {
+                return View();
             }
 
-            // Build the link here
-            var separator = "%20";
-            var scopeString = string.Empty;
-            foreach (var item in model.ScopeList.FindAll(m => m.IsSelected == true))
-            {
-                scopeString += Enum.GetName(typeof(Scope), item.Scope).Replace('_', ':') + separator;
-            }
-            var redirectUrl = "https://id.twitch.tv/oauth2/authorize"
-                + "?response_type=code" +
-                "&client_id=" + _app.ClientId +
-                "&redirect_uri=" + _app.RedirectURI +
-                "&scope=" + scopeString.Remove(scopeString.Length - 3, 3) +
-                "&state= " + _app.Token;
+            //if (model.ScopeList.Count() == 0)
+            //{
+            //    ModelState.AddModelError("ScopeList", "Please select at least one!!!");
+            //    return View("Login", model);
+            //}
 
-            return new RedirectResult(redirectUrl);
+            //// Build the link here
+            //var separator = "%20";
+            //var scopeString = string.Empty;
+            //foreach (var item in model.ScopeList)
+            //{
+            //    //scopeString += Enum.GetName(typeof(Scope), item.Scope).Replace(' ', ':') + separator;
+            //}
+            //var redirectUrl = "https://id.twitch.tv/oauth2/authorize"
+            //    + "?response_type=code" +
+            //    "&client_id=" + _app.ClientId +
+            //    "&redirect_uri=" + _app.RedirectURI +
+            //    "&scope=" + scopeString.Remove(scopeString.Length - 3, 3) +
+            //    "&state= " + _app.Token;
+
+            //return new RedirectResult(redirectUrl);
         }
 
         public IActionResult Login()
         {
-            UserScopes model = new UserScopes();
-            model.ScopeList = new List<UserScope>();
+            //List<CheckBox> lstchk = new List<CheckBox>()
+            //{
+            //    new CheckBox {Text="safety", Value="safetyValue", Category = ScopeCategory.analytics },
+            //    new CheckBox {Text="power", Value="powerValue", Category = ScopeCategory.bits},
+            //    new CheckBox {Text="access", Value="accessValue", Category = ScopeCategory.bits },
+            //    new CheckBox {Text="test", Value="testValue" , Category = ScopeCategory.channel},
+            //};
 
-            foreach (var item in Enum.GetValues(typeof(Scope)))
-            {
-                model.ScopeList.Add(new UserScope()
-                { Scope = (Scope)Enum.Parse(enumType: typeof(Scope), Enum.GetName(typeof(Scope), item)), IsSelected = false });
-            }
-
+            var model = new ScopeContainer();
             return View(model);
         }
 
@@ -119,13 +149,13 @@ namespace TwitchAPI.Controllers
                         dbUser.OAuthCode = newUser.OAuthCode;
                         dbUser.UserToken = newUser.UserToken;
                         dbUser.UserId = newUser.UserId;
-                        dbUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', '_')));
+                        dbUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', ' ')));
                         _repository.SaveChanges();
                     }
                     else
                     {
                         // dbUser is NULL
-                        newUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', '_')));
+                        newUser.Scopes = userTokenObject.Scope.ConvertAll(conv => (Scope)Enum.Parse(enumType: typeof(Scope), conv.Replace(':', ' ')));
                         _repository.CreateUser(newUser);
                         _repository.SaveChanges();
                     }

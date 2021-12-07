@@ -21,4 +21,6 @@ namespace TwitchAPI
     //TODO: Put strings into config file and reference them from there.
     //TODO: Fix userInfo for single user
     //TODO: Change names of homecontroller
+
+    //TODO: Query scopes by API in the future if we can??
 }

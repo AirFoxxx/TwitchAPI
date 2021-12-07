@@ -5190,6 +5190,11 @@ a.badge:hover, a.badge:focus {
     background-color: #007bff;
 }
 
+.badge-custom {
+    color: #fff;
+    background-color: #7125ac;
+}
+
 a.badge-primary:hover, a.badge-primary:focus {
     color: #fff;
     background-color: #0062cc;

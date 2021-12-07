@@ -11,10 +11,10 @@
     {
         public EnumCollectionJsonValueConverter() : base(
           v => JsonConvert
-            .SerializeObject(v.Select(e => e.ToString().Replace('_', ':')).ToList()),
+            .SerializeObject(v.Select(e => e.ToString().Replace(' ', ':')).ToList()),
           v => JsonConvert
             .DeserializeObject<ICollection<string>>(v)
-            .Select(e => (T)Enum.Parse(typeof(T), e.Replace(':', '_'))).ToList())
+            .Select(e => (T)Enum.Parse(typeof(T), e.Replace(':', ' '))).ToList())
         {
         }
     }
