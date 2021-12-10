@@ -33,12 +33,12 @@ namespace eTickets.Data
                 {
                     var newAdminUser = new ApplicationUser()
                     {
-                        TwitchUserId = 99999,
+                        TwitchUserId = 123,
                         UserName = "admin-user",
                         Email = adminUserEmail,
                         EmailConfirmed = true
                     };
-                    await userManager.CreateAsync(newAdminUser, "12345678");
+                    await userManager.CreateAsync(newAdminUser, "12345678Qq@");
                     await userManager.AddToRoleAsync(newAdminUser, ApplicationRoles.Admin);
                 }
 
@@ -49,12 +49,12 @@ namespace eTickets.Data
                 {
                     var newAppUser = new ApplicationUser()
                     {
-                        TwitchUserId = 11111,
+                        TwitchUserId = 145,
                         UserName = "app-user",
                         Email = appUserEmail,
                         EmailConfirmed = true
                     };
-                    await userManager.CreateAsync(newAppUser, "12345678");
+                    await userManager.CreateAsync(newAppUser, "12345678Qq@");
                     await userManager.AddToRoleAsync(newAppUser, ApplicationRoles.User);
                 }
             }

@@ -1,7 +1,9 @@
 using eTickets.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TwitchAPI.Data;
+using TwitchAPI.Models.AppUsers;
 
 namespace TwitchAPI
 {
@@ -37,6 +40,13 @@ namespace TwitchAPI
 
             services.AddScoped<ITwitchRepository, TwitchRepository>();
 
+            services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<TwitchContext>();
+            services.AddMemoryCache();
+            services.AddSession();
+
+            // Default password parameters
+            services.AddAuthentication(options => options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+
             //services.AddHttpClient("someClient", c =>
             //{
             //    c.BaseAddress = new Uri("https://someaddress.com/");
@@ -61,6 +71,7 @@ namespace TwitchAPI
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
