@@ -14,7 +14,7 @@
 
             <label class="text-danger text-md-center align-content-center">@Html.ValidationSummary()</label>
 
-            @using (Html.BeginForm("Registration", "Home", FormMethod.Post))
+            @using (Html.BeginForm("ScopeRegistration", "Account", FormMethod.Post))
             {
                 ScopeCategory category = ScopeCategory.analytics;
 

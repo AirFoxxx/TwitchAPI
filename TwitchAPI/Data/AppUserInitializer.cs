@@ -21,6 +21,8 @@ namespace eTickets.Data
 
                 if (!await roleManager.RoleExistsAsync(ApplicationRoles.Admin))
                     await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.Admin));
+                if (!await roleManager.RoleExistsAsync(ApplicationRoles.TwitchValidatedUser))
+                    await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.TwitchValidatedUser));
                 if (!await roleManager.RoleExistsAsync(ApplicationRoles.User))
                     await roleManager.CreateAsync(new IdentityRole(ApplicationRoles.User));
 

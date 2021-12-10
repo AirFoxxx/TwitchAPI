@@ -8,6 +8,7 @@ namespace TwitchAPI.Data.Static
     public static class ApplicationRoles
     {
         public const string Admin = "admin";
+        public const string TwitchValidatedUser = "twitchValidatedUser";
         public const string User = "user";
     }
 }
