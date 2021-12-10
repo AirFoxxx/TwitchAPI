@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using TwitchAPI.Models;
+using TwitchAPI.Models.AppUsers;
 
 namespace TwitchAPI.Data
 {
-    public class TwitchContext : DbContext
+    public class TwitchContext : IdentityDbContext<ApplicationUser>
     {
         public TwitchContext(DbContextOptions<TwitchContext> opt) : base(opt)
         {
@@ -12,7 +14,7 @@ namespace TwitchAPI.Data
 
         public DbSet<App> Apps { get; set; }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> TwitchUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

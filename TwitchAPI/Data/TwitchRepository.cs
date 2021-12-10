@@ -30,7 +30,7 @@ namespace TwitchAPI.Data
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            _context.Users.Add(user);
+            _context.TwitchUsers.Add(user);
         }
 
         public void DeleteApp(App app)
@@ -44,12 +44,12 @@ namespace TwitchAPI.Data
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            _context.Users.Remove(user);
+            _context.TwitchUsers.Remove(user);
         }
 
         public IEnumerable<User> GetAllUsers()
         {
-            return _context.Users.ToList();
+            return _context.TwitchUsers.ToList();
         }
 
         public App GetApp()
@@ -59,12 +59,12 @@ namespace TwitchAPI.Data
 
         public User GetUserByUserId(int id)
         {
-            return _context.Users.FirstOrDefault(user => user.UserId == id);
+            return _context.TwitchUsers.FirstOrDefault(user => user.UserId == id);
         }
 
         public User GetUserByDBId(int id)
         {
-            return _context.Users.FirstOrDefault(user => user.Id == id);
+            return _context.TwitchUsers.FirstOrDefault(user => user.Id == id);
         }
 
         public bool SaveChanges()
