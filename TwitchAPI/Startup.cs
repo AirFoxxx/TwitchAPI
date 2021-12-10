@@ -1,3 +1,4 @@
+using eTickets.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -68,6 +69,9 @@ namespace TwitchAPI
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            //Seed APP users
+            AppUserInitializer.SeedUsersAndRolesAsync(app).Wait();
         }
     }
 }
