@@ -1,7 +1,9 @@
+using EmailService;
 using eTickets.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TwitchAPI.Data;
+using TwitchAPI.Data.CustomTokenProviders;
 using TwitchAPI.Models.AppUsers;
 
 namespace TwitchAPI
@@ -29,6 +32,21 @@ namespace TwitchAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Email config
+            var emailConfig = Configuration
+                .GetSection("EmailConfiguration")
+                .Get<EmailConfiguration>();
+            services.AddSingleton(emailConfig);
+
+            services.AddScoped<IEmailSender, EmailSender>();
+
+            services.Configure<FormOptions>(o =>
+            {
+                o.ValueLengthLimit = int.MaxValue;
+                o.MultipartBodyLengthLimit = int.MaxValue;
+                o.MemoryBufferThreshold = int.MaxValue;
+            });
+
             services.AddControllersWithViews();
 
             services.AddHttpClient();
@@ -39,8 +57,25 @@ namespace TwitchAPI
             services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<ITwitchRepository, TwitchRepository>();
+            services.AddIdentity<ApplicationUser, IdentityRole>(opt =>
+            {
+                opt.Password.RequiredLength = 7;
+                opt.Password.RequireDigit = false;
+                opt.Password.RequireUppercase = false;
+                opt.User.RequireUniqueEmail = true;
+                opt.SignIn.RequireConfirmedEmail = true;
 
-            services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<TwitchContext>();
+                opt.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
+            })
+                .AddEntityFrameworkStores<TwitchContext>()
+                    .AddDefaultTokenProviders()
+                    .AddTokenProvider<EmailConfirmationTokenProvider<ApplicationUser>>("emailconfirmation");
+
+            services.Configure<DataProtectionTokenProviderOptions>(opt =>
+                opt.TokenLifespan = TimeSpan.FromHours(2));
+            services.Configure<EmailConfirmationTokenProviderOptions>(opt =>
+                opt.TokenLifespan = TimeSpan.FromDays(1));
+
             services.AddMemoryCache();
             services.AddSession();
 

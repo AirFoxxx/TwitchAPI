@@ -78,11 +78,16 @@ namespace TwitchAPI.Controllers
                 ConnectedTwitch = false,
             };
             var newUserResponse = await _userManager.CreateAsync(newUser, register.Password);
-
             if (newUserResponse.Succeeded)
+            {
                 await _userManager.AddToRoleAsync(newUser, ApplicationRoles.User);
 
-            return View("RegisterCompleted");
+                // Validate email address logic
+                return RedirectToAction("EmailVerification", "Email", newUser);
+            }
+
+            TempData["Error"] = "User could not be created!";
+            return View(register);
         }
 
         public IActionResult TwitchLoginScopes() => View(new ScopeContainer());
@@ -124,6 +129,12 @@ namespace TwitchAPI.Controllers
             var user = await _userManager.FindByEmailAsync(login.EmailAddress);
             if (user != null)
             {
+                var emailConfirmCheck = await _userManager.IsEmailConfirmedAsync(user);
+                if (!emailConfirmCheck)
+                {
+                    TempData["Error"] = "You must confirm your email address via provided link in the email we sent!";
+                    return View(login);
+                }
                 var passwordCheck = await _userManager.CheckPasswordAsync(user, login.Password);
                 if (passwordCheck)
                 {
