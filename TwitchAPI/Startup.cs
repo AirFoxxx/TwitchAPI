@@ -44,8 +44,17 @@ namespace TwitchAPI
             services.AddMemoryCache();
             services.AddSession();
 
-            // Default password parameters
-            services.AddAuthentication(options => options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+            // Default password parameters + google
+            services.AddAuthentication(options => options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/account/google-login"; // Must be lowercase
+                })
+                .AddGoogle(options =>
+                {
+                    options.ClientId = "36441300999-09jqtrqm9kdgjg6ejmekorih7j9krkmb.apps.googleusercontent.com";
+                    options.ClientSecret = "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";
+                });
 
             //services.AddHttpClient("someClient", c =>
             //{

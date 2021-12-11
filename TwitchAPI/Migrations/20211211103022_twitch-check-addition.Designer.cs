@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TwitchAPI.Data;
 
 namespace TwitchAPI.Migrations
 {
     [DbContext(typeof(TwitchContext))]
-    partial class TwitchContextModelSnapshot : ModelSnapshot
+    [Migration("20211211103022_twitch-check-addition")]
+    partial class twitchcheckaddition
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

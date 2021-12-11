@@ -22,10 +22,10 @@ else
             <i class="bi bi-person-badge"></i> Hello @UserManager.GetUserName(User)
         </button>
         <ul class="dropdown-menu" aria-labelledby="profile-btn">
-            @if (User.IsInRole("twitchValidatedUser"))
+            @if (User.IsInRole(ApplicationRoles.TwitchValidatedUser))
             {
                 <li>
-                    <a class="dropdown-item" asp-controller="Account" asp-action="TwitchLoginScopes">
+                    <a class="dropdown-item" asp-controller="Account" asp-action="TwitchRevalidateScopes">
                         <i class="bi bi-list"></i> Change Twitch settings
                     </a>
                 </li>
@@ -38,7 +38,7 @@ else
                     </a>
                 </li>
             }
-            @if (User.IsInRole("admin"))
+            @if (User.IsInRole(ApplicationRoles.Admin))
             {
                 <li>
                     <a class="dropdown-item" asp-controller="Account" asp-action="Users">

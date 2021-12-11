@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ using TwitchAPI.ViewModels;
 
 namespace TwitchAPI.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -40,13 +42,16 @@ namespace TwitchAPI.Controllers
             return user;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();
         }
 
+        [AllowAnonymous]
         public IActionResult Register() => View(new RegisterVM());
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM register)
         {
@@ -69,7 +74,8 @@ namespace TwitchAPI.Controllers
             var newUser = new ApplicationUser()
             {
                 Email = register.EmailAddress,
-                UserName = register.EmailAddress
+                UserName = register.EmailAddress,
+                ConnectedTwitch = false,
             };
             var newUserResponse = await _userManager.CreateAsync(newUser, register.Password);
 
@@ -103,11 +109,13 @@ namespace TwitchAPI.Controllers
                 }
             }
 
-            return View(model);
+            return View("TwitchLoginScopes", model);
         }
 
+        [AllowAnonymous]
         public IActionResult Login() => View(new LoginVM());
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM login)
         {
@@ -146,7 +154,7 @@ namespace TwitchAPI.Controllers
                 {
                     // Return invalid view back
                     ModelState.AddModelError("ScopeList", "Please select at least one!!!");
-                    return View("Login", container);
+                    return View("TwitchLoginScopes", container);
                 }
 
                 // Build the link here
@@ -206,26 +214,23 @@ namespace TwitchAPI.Controllers
 
                     // Save TwitchUserId to Identity object
                     var identityUser = await GetCurrentUserAsync(User.Identity.Name);
-                    var twitchUser = _repository.GetUserByUserId(identityUser.TwitchUserId);
 
-                    if (twitchUser == null)
-                    {
-                        return View("Failure",
-                            "No user is logged in for this to work!");
-                    }
-                    twitchUser.UserId = newUser.UserId;
+                    // Assign the fetched Id and other params
+                    identityUser.TwitchUserId = user.Id;
+                    identityUser.ConnectedTwitch = true;
 
                     // Assign new validated role
                     await _userManager.AddToRoleAsync(identityUser, ApplicationRoles.TwitchValidatedUser);
+                    // await _userManager.RemoveFromRoleAsync(identityUser, ApplicationRoles.User);
 
-                    // User is already in the database
-                    var dbUser = _repository.GetUserByUserId(newUser.UserId);
+                    // What if user is already in the database?
+                    var dbUser = _repository.GetUserByUserId(identityUser.TwitchUserId);
                     if (dbUser != null)
                     {
                         dbUser.ExpiresIn = newUser.ExpiresIn;
                         dbUser.OAuthCode = newUser.OAuthCode;
                         dbUser.UserToken = newUser.UserToken;
-                        dbUser.UserId = newUser.UserId;
+                        dbUser.UserId = identityUser.TwitchUserId;
                         dbUser.Scopes = userTokenObject.Scope.ToArray();
                         _repository.SaveChanges();
                     }
@@ -260,6 +265,7 @@ namespace TwitchAPI.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [AllowAnonymous]
         public IActionResult AccessDenied(string ReturnUrl)
         {
             return View();

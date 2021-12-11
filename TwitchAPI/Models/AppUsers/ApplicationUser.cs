@@ -11,5 +11,8 @@ namespace TwitchAPI.Models.AppUsers
     {
         [Display(Name = "Twitch user ID")]
         public int TwitchUserId { get; set; }
+
+        [Display(Name = "Connected Twich")]
+        public bool ConnectedTwitch { get; set; }
     }
 }
