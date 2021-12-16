@@ -67,7 +67,10 @@ namespace TwitchAPI.Controllers
             var validationResult = await _userManager.PasswordValidators.FirstOrDefault().ValidateAsync(_userManager, user, register.Password);
             if (!validationResult.Succeeded)
             {
-                TempData["Error"] = validationResult.Errors.ToList().Select(error => error.Description).Aggregate("", (first, next) => first + " " + next);
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.TryAddModelError(error.Code, error.Description);
+                }
                 return View(register);
             }
 

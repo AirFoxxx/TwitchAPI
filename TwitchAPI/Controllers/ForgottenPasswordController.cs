@@ -76,6 +76,7 @@ namespace TwitchAPI.Controllers
             return RedirectToAction(nameof(ForgotPasswordConfirmation));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult ResetPassword(string token, string email)
         {
@@ -83,6 +84,7 @@ namespace TwitchAPI.Controllers
             return View(model);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordVM resetPasswordVM)
@@ -108,12 +110,14 @@ namespace TwitchAPI.Controllers
             return RedirectToAction(nameof(ResetPasswordConfirmation));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult ResetPasswordConfirmation()
         {
             return View();
         }
 
+        [AllowAnonymous]
         public IActionResult ForgotPasswordConfirmation()
         {
             return View();

@@ -56,8 +56,15 @@ namespace TwitchAPI.Controllers
                 return RedirectToAction("Login", "Account");
 
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
-            string[] userInfo = { info.Principal.FindFirst(ClaimTypes.Name).Value, info.Principal.FindFirst(ClaimTypes.Email).Value };
-            if (result.Succeeded)
+            // string[] userInfo = { info.Principal.FindFirst(ClaimTypes.Name).Value, info.Principal.FindFirst(ClaimTypes.Email).Value };
+
+            if (result.IsNotAllowed)
+                return View("Failure", "This user has not been allowed to sign in by Google!");
+            else if (result.IsLockedOut)
+                return View("Failure", "This user has been locked out!");
+            else if (result.RequiresTwoFactor)
+                return View("Failure", "Google requires enabling two factor authentication for this login!");
+            else if (result.Succeeded)
                 return RedirectToAction("Index", "Home");
             else
             {
@@ -83,7 +90,7 @@ namespace TwitchAPI.Controllers
                     }
                 }
                 return View("Failure",
-                    "Access has been denied!");
+                    "Something in the Google authentication broke!");
             }
         }
     }

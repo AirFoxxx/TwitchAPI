@@ -9,6 +9,7 @@ namespace TwitchAPI.ViewModels
     public class RegisterVM
     {
         [Display(Name = "Email address")]
+        [DataType(DataType.EmailAddress)]
         [Required(ErrorMessage = "Email address is required")]
         public string EmailAddress { get; set; }
 
